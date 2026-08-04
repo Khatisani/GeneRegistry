@@ -9,7 +9,7 @@ Sub-Saharan Africa is home to incredible drought tolerant, disease resistant cro
 
 When an agricultural researcher at a local institute identifies a novel drought-resistance gene variant or sequences a rare native plant, they don't just log it in a private spreadsheet, they submit the DNA sequence, species name, and metadata to the smart contract.
 
-
+For now, let's assume a sequence is about 10bp long.
 
 
 
