@@ -1,0 +1,10 @@
+{
+  "GeneRegistry.sol": {
+    "__sources__": {
+      "GeneRegistry.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\n// Gene registry Contract \n// Define the data structure of the gene record\n\n\n// Events \n\n\n// Function to register a gene \n\n\n// Function to retrieve a gene based on its sequence\n\n\n// Function to check if a sequence string is already registered\n\n",
+        "file": "GeneRegistry.sol"
+      }
+    }
+  }
+}
