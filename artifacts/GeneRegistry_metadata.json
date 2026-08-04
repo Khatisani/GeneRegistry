@@ -7,7 +7,32 @@
 		"abi": [
 			{
 				"anonymous": false,
-				"inputs": [],
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "sequence",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "reseacher",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "speciesName",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "traitType",
+						"type": "string"
+					}
+				],
 				"name": "registered",
 				"type": "event"
 			},
@@ -25,6 +50,11 @@
 						"components": [
 							{
 								"internalType": "string",
+								"name": "sequence",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
 								"name": "speciesName",
 								"type": "string"
 							},
@@ -37,11 +67,6 @@
 								"internalType": "address",
 								"name": "researcher",
 								"type": "address"
-							},
-							{
-								"internalType": "string",
-								"name": "sequence",
-								"type": "string"
 							}
 						],
 						"internalType": "struct GeneRegistry.GeneRecord",
@@ -83,6 +108,11 @@
 				"outputs": [
 					{
 						"internalType": "string",
+						"name": "sequence",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
 						"name": "speciesName",
 						"type": "string"
 					},
@@ -95,11 +125,6 @@
 						"internalType": "address",
 						"name": "researcher",
 						"type": "address"
-					},
-					{
-						"internalType": "string",
-						"name": "sequence",
-						"type": "string"
 					}
 				],
 				"stateMutability": "view",
@@ -157,11 +182,11 @@
 	},
 	"sources": {
 		"GeneRegistry.sol": {
-			"keccak256": "0x0fe7248d71566b93e5108026c49f9f54e3efb1ecd4901b33b3c49f46b1c988c3",
+			"keccak256": "0xcc575012d9be8ac659bb93c98cb20b6c20c71d5848176d8b80bfc526151d5112",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://c8cb54971eaec7aade1cbc4ce3bb782b108b8815057b3ba495053cd83799da87",
-				"dweb:/ipfs/QmWwiZurTDqmLvxab6Jy3roLT9gCwRi44CEmeYeQk4GHnD"
+				"bzz-raw://1f3b7bd3562cc076b8de740e40954eb82cb7207baab2dee078d9241f1702d1ca",
+				"dweb:/ipfs/QmP3VpfYUWbYy4zfYUcQtsWvfNCY3jnH9P2p1vQgjSiyBJ"
 			]
 		}
 	},

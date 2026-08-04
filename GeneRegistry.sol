@@ -6,15 +6,18 @@ contract GeneRegistry{
 
 // Define the data structure of the gene record
     struct GeneRecord {
+        string sequence;
         string speciesName;
         string traitType;
         address researcher;
-        string sequence;
     }
 
-// Event for when a gene is registered
+// Event for when a gene is registered, emit to log registration
     event registered(
-
+        string sequence,
+        address reseacher,
+        string speciesName,
+        string traitType
     );
 
 GeneRecord[] public records;
@@ -29,6 +32,8 @@ GeneRecord[] public records;
 
         });
         records.push(newRecord);
+
+        emit registered(_sequence, msg.sender, _speciesName, _traitType);
     }
 
 
