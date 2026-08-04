@@ -14,11 +14,18 @@ contract GeneRegistry{
 
 // Events 
 
+GeneRecord[] public records;
 
 // Function to register a gene 
     function registerGene(string memory _speciesName, string memory _traitType, string memory _sequence) external {
-        Gene
-        // If not, create a new gord and emit an eventene rec
+        GeneRecord memory newRecord = GeneRecord({
+            speciesName: _speciesName,
+            traitType: _traitType,
+            researcher: msg.sender,
+            sequence: _sequence
+
+        });
+        records.push(newRecord);
     }
 
 
