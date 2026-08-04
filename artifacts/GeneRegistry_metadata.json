@@ -1,0 +1,144 @@
+{
+	"compiler": {
+		"version": "0.8.34+commit.80d5c536"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_sequence",
+						"type": "string"
+					}
+				],
+				"name": "getGeneBySequence",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "speciesName",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "traitType",
+								"type": "string"
+							},
+							{
+								"internalType": "address",
+								"name": "researcher",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "sequence",
+								"type": "string"
+							}
+						],
+						"internalType": "struct GeneRegistry.GeneRecord",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "records",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "speciesName",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "traitType",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "researcher",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "sequence",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_speciesName",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "_traitType",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "_sequence",
+						"type": "string"
+					}
+				],
+				"name": "registerGene",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"GeneRegistry.sol": "GeneRegistry"
+		},
+		"evmVersion": "osaka",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"GeneRegistry.sol": {
+			"keccak256": "0xb39108e42267c9a31d477663d833c2c0e74c1c576bf42016c8d909bc03e60d25",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://b6bf5484668109d17e4541324e02f3a29d99dd57e1e46deacc3a6ba75fc02607",
+				"dweb:/ipfs/QmNiC4r2fTnvq29tPpoxbd8Qcw9Tc9GAWC5ddJX46zxj3D"
+			]
+		}
+	},
+	"version": 1
+}

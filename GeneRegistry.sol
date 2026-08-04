@@ -12,7 +12,10 @@ contract GeneRegistry{
         string sequence;
     }
 
-// Events 
+// Event for when a gene is registered
+    event registered(
+
+    );
 
 GeneRecord[] public records;
 
@@ -30,9 +33,18 @@ GeneRecord[] public records;
 
 
 // Function to retrieve a gene based on its sequence
+    function getGeneBySequence(string memory _sequence) external view returns (GeneRecord memory) {
+        for (uint i = 0; i < records.length; i++) {
+            if (keccak256(bytes(records[i].sequence)) == keccak256(bytes(_sequence))) {
+                return records[i];
+            }
+        }
+        revert("Gene not found");
+    }
 
 
 // Function to check if a sequence string is already registered
+
 
 
 }
