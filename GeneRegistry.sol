@@ -44,7 +44,12 @@ GeneRecord[] public records;
 
 
 // Function to check if a sequence string is already registered
-
-
-
+    function isRegistered (string memory _sequence) external view returns (bool){
+        for (uint256 i = 0; i < records.length; i++){
+            if (keccak256(abi.encodePacked(records[i].sequence)) == keccak256(abi.encodePacked(_sequence))){
+                return true;
+            }
+        }
+        return false;
+    } 
 }

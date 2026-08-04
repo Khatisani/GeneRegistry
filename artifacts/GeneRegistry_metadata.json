@@ -6,6 +6,12 @@
 	"output": {
 		"abi": [
 			{
+				"anonymous": false,
+				"inputs": [],
+				"name": "registered",
+				"type": "event"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "string",
@@ -41,6 +47,25 @@
 						"internalType": "struct GeneRegistry.GeneRecord",
 						"name": "",
 						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_sequence",
+						"type": "string"
+					}
+				],
+				"name": "isRegistered",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
 					}
 				],
 				"stateMutability": "view",
@@ -132,11 +157,11 @@
 	},
 	"sources": {
 		"GeneRegistry.sol": {
-			"keccak256": "0xb39108e42267c9a31d477663d833c2c0e74c1c576bf42016c8d909bc03e60d25",
+			"keccak256": "0x0fe7248d71566b93e5108026c49f9f54e3efb1ecd4901b33b3c49f46b1c988c3",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://b6bf5484668109d17e4541324e02f3a29d99dd57e1e46deacc3a6ba75fc02607",
-				"dweb:/ipfs/QmNiC4r2fTnvq29tPpoxbd8Qcw9Tc9GAWC5ddJX46zxj3D"
+				"bzz-raw://c8cb54971eaec7aade1cbc4ce3bb782b108b8815057b3ba495053cd83799da87",
+				"dweb:/ipfs/QmWwiZurTDqmLvxab6Jy3roLT9gCwRi44CEmeYeQk4GHnD"
 			]
 		}
 	},
