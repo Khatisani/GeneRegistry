@@ -13,6 +13,7 @@ contract GeneRegistry{
     }
 
     error emptyField();
+    error duplicateSequence(string sequence);
 
 
 // Event for when a gene is registered, emit to log registration
@@ -30,6 +31,12 @@ GeneRecord[] public records;
         
         if (bytes(_speciesName).length == 0 || bytes(_traitType).length == 0 || bytes(_sequence).length == 0) {
             revert emptyField();
+        }
+
+        for (uint256 i = 0; i < records.length; i++){
+            if (keccak256(bytes(records[i].sequence)) == keccak256(bytes(_sequence))){
+                revert duplicateSequence(_sequence);
+            }
         }
         
         GeneRecord memory newRecord = GeneRecord({
