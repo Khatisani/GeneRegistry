@@ -12,6 +12,9 @@ contract GeneRegistry{
         address researcher;
     }
 
+    error emptyField();
+
+
 // Event for when a gene is registered, emit to log registration
     event registered(
         string sequence,
@@ -24,6 +27,11 @@ GeneRecord[] public records;
 
 // Function to register a gene 
     function registerGene(string memory _speciesName, string memory _traitType, string memory _sequence) external {
+        
+        if (bytes(_speciesName).length == 0 || bytes(_traitType).length == 0 || bytes(_sequence).length == 0) {
+            revert emptyField();
+        }
+        
         GeneRecord memory newRecord = GeneRecord({
             speciesName: _speciesName,
             traitType: _traitType,
@@ -39,7 +47,7 @@ GeneRecord[] public records;
 
 // Function to retrieve a gene based on its sequence
     function getGeneBySequence(string memory _sequence) external view returns (GeneRecord memory) {
-        for (uint i = 0; i < records.length; i++) {
+        for (uint256 i = 0; i < records.length; i++) {
             if (keccak256(bytes(records[i].sequence)) == keccak256(bytes(_sequence))) {
                 return records[i];
             }
@@ -51,7 +59,7 @@ GeneRecord[] public records;
 // Function to check if a sequence string is already registered
     function isRegistered (string memory _sequence) external view returns (bool){
         for (uint256 i = 0; i < records.length; i++){
-            if (keccak256(abi.encodePacked(records[i].sequence)) == keccak256(abi.encodePacked(_sequence))){
+            if (keccak256(bytes(records[i].sequence)) == keccak256(bytes(_sequence))){
                 return true;
             }
         }
