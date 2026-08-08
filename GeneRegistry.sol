@@ -12,9 +12,9 @@ contract GeneRegistry{
         address researcher;
     }
 
+// Errors for input validation
     error emptyField();
     error duplicateSequence(string sequence);
-
 
 // Event for when a gene is registered, emit to log registration
     event registered(
