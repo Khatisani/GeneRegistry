@@ -41,7 +41,7 @@ mapping(bytes32 => GeneRecord) private records;
         }
         
 
-    // Check fi the sequence is valid
+    // NB: Check if the sequence is valid first
         GeneRecord memory newRecord = GeneRecord({
             speciesName: _speciesName,
             traitType: _traitType,
