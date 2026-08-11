@@ -17,7 +17,13 @@
 				"type": "error"
 			},
 			{
-				"inputs": [],
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "field",
+						"type": "string"
+					}
+				],
 				"name": "emptyField",
 				"type": "error"
 			},
@@ -198,11 +204,11 @@
 	},
 	"sources": {
 		"GeneRegistry.sol": {
-			"keccak256": "0x48518e405b0e0b7301868f0f753e1953acf4eb088f27a9ac53cbf2d7d95250ba",
+			"keccak256": "0xf40ecf0f478f612d15ec66884820ddbf65bb48e7811067f77f725a7e77659e56",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://69aef51db5538c6f173279259bfa200011f5b1f85a15332bb13a82ce43db608e",
-				"dweb:/ipfs/QmSEMBK3Wa2mSBVfY3NZS3ssiAawBiRV4HZVhs1BLTfGeh"
+				"bzz-raw://b80bfa47334ffd87998ce04b72501a179e834ed4b62a5c135499d829b31f4367",
+				"dweb:/ipfs/QmUGfbE6FpWX3kWPz8vWQhkMUy9cWG5gkHQN5iDzqudckv"
 			]
 		}
 	},
