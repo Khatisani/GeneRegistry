@@ -28,6 +28,17 @@
 				"type": "error"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "sequence",
+						"type": "string"
+					}
+				],
+				"name": "invalidSequence",
+				"type": "error"
+			},
+			{
 				"anonymous": false,
 				"inputs": [
 					{
@@ -57,6 +68,19 @@
 				],
 				"name": "registered",
 				"type": "event"
+			},
+			{
+				"inputs": [],
+				"name": "fee",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
 			},
 			{
 				"inputs": [
@@ -143,7 +167,7 @@
 				],
 				"name": "registerGene",
 				"outputs": [],
-				"stateMutability": "nonpayable",
+				"stateMutability": "payable",
 				"type": "function"
 			}
 		],
@@ -175,11 +199,11 @@
 	},
 	"sources": {
 		"GeneRegistry.sol": {
-			"keccak256": "0x70143a7f1cbeb9624b83e6fb0b05e233362475d7cf9f91d60dbe6ab99ae5be65",
+			"keccak256": "0xa068e5b0442f3dbb3a30ec16fceda8fd4d84e6af30f53b77dd534bc8f4873576",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://660d5f3a0aff838cb246231e5293c3e6d59f685087873bfb61416dbac94fa55e",
-				"dweb:/ipfs/QmTL64JrkwP4qRB2EiTHnd9ix7QHdaWCUj4wigbnj3bmh4"
+				"bzz-raw://2b0fb1b932f338d185606f63921d02d9b788f0a56972b44e3f42758e7c333db2",
+				"dweb:/ipfs/QmVzXjwKF1srm6czpmzhqafCp3kZ7bF6vypEuWZSWCsL1U"
 			]
 		}
 	},
