@@ -6,6 +6,22 @@
 	"output": {
 		"abi": [
 			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "sequence",
+						"type": "string"
+					}
+				],
+				"name": "duplicateSequence",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "emptyField",
+				"type": "error"
+			},
+			{
 				"anonymous": false,
 				"inputs": [
 					{
@@ -182,11 +198,11 @@
 	},
 	"sources": {
 		"GeneRegistry.sol": {
-			"keccak256": "0xcc575012d9be8ac659bb93c98cb20b6c20c71d5848176d8b80bfc526151d5112",
+			"keccak256": "0x48518e405b0e0b7301868f0f753e1953acf4eb088f27a9ac53cbf2d7d95250ba",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://1f3b7bd3562cc076b8de740e40954eb82cb7207baab2dee078d9241f1702d1ca",
-				"dweb:/ipfs/QmP3VpfYUWbYy4zfYUcQtsWvfNCY3jnH9P2p1vQgjSiyBJ"
+				"bzz-raw://69aef51db5538c6f173279259bfa200011f5b1f85a15332bb13a82ce43db608e",
+				"dweb:/ipfs/QmSEMBK3Wa2mSBVfY3NZS3ssiAawBiRV4HZVhs1BLTfGeh"
 			]
 		}
 	},
