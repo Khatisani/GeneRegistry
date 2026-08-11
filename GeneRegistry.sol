@@ -16,6 +16,7 @@ contract GeneRegistry{
 // Errors for input validation
     error emptyField(string field);
     error duplicateSequence(string sequence);
+    error invalidSequence(string sequence);
 
 // Event for when a gene is registered, emit to log registration
     event registered(
@@ -40,6 +41,7 @@ mapping(bytes32 => GeneRecord) private records;
         }
         
 
+    // Check fi the sequence is valid
         GeneRecord memory newRecord = GeneRecord({
             speciesName: _speciesName,
             traitType: _traitType,
