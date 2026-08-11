@@ -10,6 +10,7 @@ contract GeneRegistry{
         string speciesName;
         string traitType;
         address researcher;
+        bool exists;
     }
 
 // Errors for input validation
@@ -24,29 +25,31 @@ contract GeneRegistry{
         string traitType
     );
 
-GeneRecord[] public records;
+mapping(bytes32 => GeneRecord) private records;
 
 // Function to register a gene 
-    function registerGene(string memory _speciesName, string memory _traitType, string memory _sequence) external {
+    function registerGene(
+        string memory _speciesName, string memory _traitType, string memory _sequence) external {
         
         if (bytes(_speciesName).length == 0) revert emptyField("speciesName");
         if (bytes(_traitType).length == 0) revert emptyField("traitType");
         if (bytes(_sequence).length == 0) revert emptyField("sequence");
 
-        for (uint256 i = 0; i < records.length; i++){
-            if (keccak256(bytes(records[i].sequence)) == keccak256(bytes(_sequence))){
-                revert duplicateSequence(_sequence);
-            }
+        if (records[keccak256(bytes(_sequence))].exists) {
+            revert duplicateSequence(_sequence);
         }
         
+
         GeneRecord memory newRecord = GeneRecord({
             speciesName: _speciesName,
             traitType: _traitType,
             researcher: msg.sender,
-            sequence: _sequence
+            sequence: _sequence,
+            exists:true
 
         });
-        records.push(newRecord);
+
+        records[keccak256(bytes(_sequence))] = newRecord;
 
         emit registered(_sequence, msg.sender, _speciesName, _traitType);
     }
@@ -54,14 +57,12 @@ GeneRecord[] public records;
 
 // Function to retrieve a gene based on its sequence
     function getGeneBySequence(string memory _sequence) external view returns (GeneRecord memory) {
-        if (bytes(_sequence).length == 0){
-            revert emptyField("sequence");
-        }
+
+        if (bytes(_sequence).length == 0) revert emptyField("sequence");
         
-        for (uint256 i = 0; i < records.length; i++) {
-            if (keccak256(bytes(records[i].sequence)) == keccak256(bytes(_sequence))) {
-                return records[i];
-            }
+
+        if (records[keccak256(bytes(_sequence))].exists) {
+            return records[keccak256(bytes(_sequence))];
         }
         revert("Gene not found");
     }
@@ -69,15 +70,9 @@ GeneRecord[] public records;
 
 // Function to check if a sequence string is already registered
     function isRegistered (string memory _sequence) external view returns (bool){
-        if (bytes(_sequence).length == 0){
-            revert emptyField("sequence");
-        }
+        if (bytes(_sequence).length == 0) revert emptyField("sequence");
 
-        for (uint256 i = 0; i < records.length; i++){
-            if (keccak256(bytes(records[i].sequence)) == keccak256(bytes(_sequence))){
-                return true;
-            }
-        }
-        return false;
-    } 
-}
+        return records[keccak256(bytes(_sequence))].exists;
+    }
+} 
+

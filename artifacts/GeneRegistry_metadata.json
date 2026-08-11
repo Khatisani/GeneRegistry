@@ -89,6 +89,11 @@
 								"internalType": "address",
 								"name": "researcher",
 								"type": "address"
+							},
+							{
+								"internalType": "bool",
+								"name": "exists",
+								"type": "bool"
 							}
 						],
 						"internalType": "struct GeneRegistry.GeneRecord",
@@ -113,40 +118,6 @@
 						"internalType": "bool",
 						"name": "",
 						"type": "bool"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"name": "records",
-				"outputs": [
-					{
-						"internalType": "string",
-						"name": "sequence",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "speciesName",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "traitType",
-						"type": "string"
-					},
-					{
-						"internalType": "address",
-						"name": "researcher",
-						"type": "address"
 					}
 				],
 				"stateMutability": "view",
@@ -204,11 +175,11 @@
 	},
 	"sources": {
 		"GeneRegistry.sol": {
-			"keccak256": "0xf40ecf0f478f612d15ec66884820ddbf65bb48e7811067f77f725a7e77659e56",
+			"keccak256": "0x70143a7f1cbeb9624b83e6fb0b05e233362475d7cf9f91d60dbe6ab99ae5be65",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://b80bfa47334ffd87998ce04b72501a179e834ed4b62a5c135499d829b31f4367",
-				"dweb:/ipfs/QmUGfbE6FpWX3kWPz8vWQhkMUy9cWG5gkHQN5iDzqudckv"
+				"bzz-raw://660d5f3a0aff838cb246231e5293c3e6d59f685087873bfb61416dbac94fa55e",
+				"dweb:/ipfs/QmTL64JrkwP4qRB2EiTHnd9ix7QHdaWCUj4wigbnj3bmh4"
 			]
 		}
 	},
