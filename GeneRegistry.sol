@@ -15,6 +15,7 @@ contract GeneRegistry{
 
     uint256 public fee = 0.001 ether;
 
+// Contract admin 
     address public immutable owner;
 
 // Errors for input validation
@@ -37,6 +38,10 @@ contract GeneRegistry{
     modifier onlyOwner() {
         if (msg.sender != owner) revert ("Only owner can perform this. ");
         _;
+    }
+
+    constructor (){
+        owner = msg.sender;
     }
 
     function isValidSequence (string memory _sequence) internal pure returns (bool){
