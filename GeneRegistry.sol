@@ -107,5 +107,14 @@ contract GeneRegistry{
 
         return records[sequenceHash].exists;
     }
+
+    function withdrawFees() external onlyOwner {
+        uint256 balance = address(this).balance;
+
+        if (balance == 0) revert insufficientFee(0, 0);
+
+        (bool success, ) = owner.call{value: balance}("");
+        if (!success) revert ("Withdrawal failed.");
+    }
 } 
 
