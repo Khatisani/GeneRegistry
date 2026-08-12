@@ -7,11 +7,11 @@ pragma solidity ^0.8.20;
 contract GeneRegistry{
 
 /// @notice Data structure representing a registered gene record.
-    /// @param sequence The DNA sequence string ("AATTGTCTGA").
-    /// @param speciesName The biological name of the organism ("Sorghum bicolor").
-    /// @param traitType The identified physiological trait ("Drought Resistance").
-    /// @param researcher The Ethereum address of the account that registered the gene.
-    /// @param exists Indicator for whether the sequence has been registered.
+/// @param sequence The DNA sequence string ("AATTGTCTGA").
+/// @param speciesName The biological name of the organism ("Sorghum bicolor").
+/// @param traitType The identified physiological trait ("Drought Resistance").
+/// @param researcher The Ethereum address of the account that registered the gene.
+/// @param exists Indicator for whether the sequence has been registered.
     struct GeneRecord {
         string sequence;
         string speciesName;
@@ -102,12 +102,30 @@ contract GeneRegistry{
             return true; 
     }
 
+/// @notice Converts a string sequence to uppercase
+/// @param _sequence The raw sequence string entered
+/// @return The uppercase normalized sequence string
+    function toUppercase(string memory _sequence) internal pure returns (string memory) {
+        bytes memory sequenceBytes = bytes(_sequence);
+        bytes memory sequenceUpper = new bytes(sequenceBytes.length);
+
+        for (uint256 i = 0; i < sequenceBytes.length; i++) {
+            uint8 char = uint8(sequenceBytes[i]);
+            if (char >= 97 && char <= 122) {
+                sequenceUpper[i] = bytes1(char - 32);
+            } else {
+                sequenceUpper[i] = sequenceBytes[i];
+            }
+        }
+        return string(sequenceUpper);
+    }
+
 
 /// @notice Registers a new genomic sequence along with metadata.
 /// @dev Requires msg.value > = fee. Reverts on empty inputs, invalid bases, or duplicate sequences.
 /// @param _speciesName The biological name of the organism.
 /// @param _traitType The identified physiological trait.
- /// @param _sequence The DNA sequence string. 
+/// @param _sequence The DNA sequence string. 
     function registerGene(
         string memory _speciesName, string memory _traitType, string memory _sequence) external payable {
         
@@ -119,24 +137,26 @@ contract GeneRegistry{
         
         if (!isValidSequence(_sequence)) revert invalidSequence(_sequence);
 
-        bytes32 sequenceHash = keccak256(bytes(_sequence));
+        string memory normalizedSequence = toUppercase(_sequence);
+
+        bytes32 sequenceHash = keccak256(bytes(normalizedSequence));
 
         if (records[sequenceHash].exists) {
-            revert duplicateSequence(_sequence);
+            revert duplicateSequence(normalizedSequence);
         }
 
         GeneRecord memory newRecord = GeneRecord({
             speciesName: _speciesName,
             traitType: _traitType,
             researcher: msg.sender,
-            sequence: _sequence,
+            sequence: normalizedSequence,
             exists:true
 
         });
 
         records[sequenceHash] = newRecord;
 
-        emit registered(_sequence, msg.sender, _speciesName, _traitType);
+        emit registered(normalizedSequence, msg.sender, _speciesName, _traitType);
     }
 
 
