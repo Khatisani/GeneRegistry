@@ -18,6 +18,7 @@ contract GeneRegistry{
     error duplicateSequence(string sequence);
     error invalidSequence(string sequence);
     error insufficientFee(uint256 required, uint256 provided);
+    error geneNotFound(string sequence);
 
 // Event for when a gene is registered, emit to log registration
     event registered(
@@ -36,18 +37,20 @@ mapping(bytes32 => GeneRecord) private records;
     function registerGene(
         string memory _speciesName, string memory _traitType, string memory _sequence) external payable {
         
+        if (msg.value < fee) revert insufficientFee(fee, msg.value);
+
         if (bytes(_speciesName).length == 0) revert emptyField("speciesName");
         if (bytes(_traitType).length == 0) revert emptyField("traitType");
         if (bytes(_sequence).length == 0) revert emptyField("sequence");
 
-        if (records[keccak256(bytes(_sequence))].exists) {
+// NB: Check if the sequence is valid first
+
+        bytes32 sequenceHash = keccak256(bytes(_sequence));
+
+        if (records[sequenceHash].exists) {
             revert duplicateSequence(_sequence);
         }
 
-        if (msg.value < fee) revert insufficientFee(fee, msg.value);
-        
-
-    // NB: Check if the sequence is valid first
         GeneRecord memory newRecord = GeneRecord({
             speciesName: _speciesName,
             traitType: _traitType,
@@ -57,7 +60,7 @@ mapping(bytes32 => GeneRecord) private records;
 
         });
 
-        records[keccak256(bytes(_sequence))] = newRecord;
+        records[sequenceHash] = newRecord;
 
         emit registered(_sequence, msg.sender, _speciesName, _traitType);
     }
@@ -72,7 +75,7 @@ mapping(bytes32 => GeneRecord) private records;
         if (records[keccak256(bytes(_sequence))].exists) {
             return records[keccak256(bytes(_sequence))];
         }
-        revert("Gene not found");
+        revert geneNotFound(_sequence);
     }
 
 
