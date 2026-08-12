@@ -90,6 +90,54 @@ contract GeneRegistryTest is Test {
         );
     }
 
+/// Accepts lowercase sequence and emits normalized uppercase
+    function test_IsValidSequence_NormalizesLowercase() public {
+        vm.prank(researcher);
+
+        vm.expectEmit(true, true, true, true);
+        emit GeneRegistry.registered("ATCGATCG", researcher, "Sorghum bicolor", "Drought Resistance");
+
+        registry.registerGene{value: REGISTRATION_FEE}(
+            "Sorghum bicolor",
+            "Drought Resistance",
+            "atcgatcg"
+        );
+    }
+
+/// Prevents duplicate registration when sending lowercase version of an uppercase sequence
+    function test_RevertWhen_DuplicateCaseInsensitive() public {
+        vm.startPrank(researcher2);
+        registry.registerGene{value: REGISTRATION_FEE}(
+            "Sorghum bicolor",
+            "Drought Resistance",
+            "ATCGATCG"
+        );
+
+        vm.expectRevert(
+            abi.encodeWithSelector(GeneRegistry.duplicateSequence.selector, "ATCGATCG")
+        );
+        registry.registerGene{value: REGISTRATION_FEE}(
+            "Sorghum bicolor",
+            "Drought Resistance",
+            "atcgatcg"
+        );
+
+        vm.stopPrank();
+    }
+
+/// Accepts mixed-case sequence and emits normalized uppercase
+    function test_isValidSequence_NormalizesMixedCase() public {
+        vm.prank(researcher);
+
+        vm.expectEmit(true, true, true, true);
+        emit GeneRegistry.registered("ATCGATCG", researcher, "Sorghum bicolor", "Drought Resistance");
+
+        registry.registerGene{value: REGISTRATION_FEE}(
+            "Sorghum bicolor",
+            "Drought Resistance",
+            "aTcGaTcG"
+        );
+    }
 
 
 /// ================================================= registerGene Tests ===========================================
