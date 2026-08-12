@@ -33,6 +33,9 @@ contract GeneRegistry{
         string traitType
     );
 
+// Event for when fees are withdrawn, emit to log withdrawal
+    event feesWithdrawn(address indexed owner, uint256 amount);
+
     mapping(bytes32 => GeneRecord) private records;
 
     modifier onlyOwner() {
@@ -60,9 +63,7 @@ contract GeneRegistry{
         if (bytes(_traitType).length == 0) revert emptyField("traitType");
         if (bytes(_sequence).length == 0) revert emptyField("sequence");
         
-        if (!isValidSequence(_sequence)){
-            revert invalidSequence(_sequence);
-        }
+        if (!isValidSequence(_sequence)) revert invalidSequence(_sequence);
 
         bytes32 sequenceHash = keccak256(bytes(_sequence));
 
@@ -108,6 +109,7 @@ contract GeneRegistry{
         return records[sequenceHash].exists;
     }
 
+// Function to withdraw the accumulated fees to contract owner
     function withdrawFees() external onlyOwner {
         uint256 balance = address(this).balance;
 
@@ -115,6 +117,8 @@ contract GeneRegistry{
 
         (bool success, ) = owner.call{value: balance}("");
         if (!success) revert ("Withdrawal failed.");
+
+        emit feesWithdrawn(owner, balance);
     }
 } 
 
