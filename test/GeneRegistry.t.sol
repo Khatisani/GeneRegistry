@@ -25,6 +25,72 @@ contract GeneRegistryTest is Test {
     
 /// ================================================= isValidSequence Tests ===========================================
 
+/// Accepts sequence with lowercase letters
+    function test_IsValidSequence_Lowercase() public {
+        vm.prank(researcher2);
+
+        registry.registerGene{value: REGISTRATION_FEE}(
+            "Sorghum bicolor",
+            "Drought Resistance",
+            "atcgatcgn"
+        );
+    }
+
+/// Accepts sequence with uppercase letters
+    function test_IsValidSequence_Uppercase() public {
+        vm.prank(researcher2);
+
+        registry.registerGene{value: REGISTRATION_FEE}(
+            "Sorghum bicolor",
+            "Drought Resistance",
+            "ATTGCGT"
+        );
+    }
+
+/// Accepts sequence with valid mixed case letters
+    function test_IsValidSequence_AcceptsMixed() public {
+        vm.prank(researcher);
+
+        registry.registerGene{value: REGISTRATION_FEE}(
+            "Sorghum bicolor",
+            "Drought Resistance",
+            "aTcGaTcGN"
+        );
+    }    
+
+/// Reverts when sequence contains invalid characters
+    function test_RevertWhen_InvalidSequence() public {
+        vm.prank(researcher);
+
+        string memory invalidSeq = "ATCG123X";
+
+        vm.expectRevert(
+            abi.encodeWithSelector(GeneRegistry.invalidSequence.selector, invalidSeq)
+        );
+        registry.registerGene{value: REGISTRATION_FEE}(
+            "Sorghum bicolor",
+            "Drought Resistance",
+            invalidSeq
+        );
+    }
+
+/// Reverts when sequence contains inavlid character
+    function test_RevertWhen_SequenceContainsInvalidChar() public {
+        vm.prank(researcher);
+
+        string memory invalidSeq = "ATCGaTcGr";
+
+        vm.expectRevert(
+            abi.encodeWithSelector(GeneRegistry.invalidSequence.selector, invalidSeq)
+        );
+        registry.registerGene{value: REGISTRATION_FEE}(
+            "Sorghum bicolor",
+            "Drought Resistance",
+            invalidSeq
+        );
+    }
+
+
 
 /// ================================================= registerGene Tests ===========================================
 
