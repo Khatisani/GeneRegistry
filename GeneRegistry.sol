@@ -84,7 +84,9 @@ mapping(bytes32 => GeneRecord) private records;
     function isRegistered (string memory _sequence) external view returns (bool){
         if (bytes(_sequence).length == 0) revert emptyField("sequence");
 
-        return records[keccak256(bytes(_sequence))].exists;
+        bytes32 sequenceHash = keccak256(bytes(_sequence));
+
+        return records[sequenceHash].exists;
     }
 } 
 
