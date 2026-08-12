@@ -1,17 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-/// @title GeneRegistry
-/// @notice A decentralized, tamper proof registry for storing plant and genomic DNA sequences.
-/// @dev Implements....
+// Gene registry Contract 
 contract GeneRegistry{
 
-/// @notice Data structure representing a registered gene record.
-    /// @param sequence The DNA sequence string ("AATTGTCTGA").
-    /// @param speciesName The biological name of the organism ("Sorghum bicolor").
-    /// @param traitType The identified physiological trait ("Drought Resistance").
-    /// @param researcher The Ethereum address of the account that registered the gene.
-    /// @param exists Indicator for whether the sequence has been registered.
+// Define the data structure of the gene record
     struct GeneRecord {
         string sequence;
         string speciesName;
@@ -20,40 +13,21 @@ contract GeneRegistry{
         bool exists;
     }
 
-/// @notice Fee required to register a single gene sequence.
     uint256 public fee = 0.001 ether;
 
-/// @notice Address of the contract deployer with administrative capabilities.
+// Contract admin 
     address public immutable owner;
 
-/// @notice Custom errors for gas efficient input validation. 
-/// @param field Name of the string field that was submitted empty.
+// Errors for input validation
     error emptyField(string field);
-
-/// @param sequence The DNA sequence string that has already been registered.
     error duplicateSequence(string sequence);
-
-/// @param sequence The invalid sequence string containing invalid characters.
     error invalidSequence(string sequence);
-
-/// @param required The expected minimum fee.
-/// @param provided The actual amount sent.
     error insufficientFee(uint256 required, uint256 provided);
-
-/// @param sequence The DNA sequence string that was not found in storage.
     error geneNotFound(string sequence);
-
-/// @notice Reverted when the withdrawal to the owner fails.
     error withdrawFailed(); 
-
-/// @notice Reverted when an address attempts to call an admin function.
     error unauthorized ();
 
-/// @notice Emitted when a new DNA sequence is successfully registered.
-/// @param sequence The DNA sequence.
-/// @param reseacher The address of the researcher submitting the sequence.
-/// @param speciesName The biological name of the organism.
-/// @param traitType The targeted trait.
+// Event for when a gene is registered, emit to log registration
     event registered(
         string sequence,
         address reseacher,
@@ -61,29 +35,23 @@ contract GeneRegistry{
         string traitType
     );
 
-/// @notice Emitted when accumulated registration fees are withdrawn by the contract owner.
-/// @param owner The recipient address of the withdrawn fees.
-/// @param amount The total balance withdrawn in wei.
+// Event for when fees are withdrawn, emit to log withdrawal
     event feesWithdrawn(address indexed owner, uint256 amount);
 
-/// @dev Internal lookup mapping connecting keccak256 sequence hashes to GeneRecord structs.
     mapping(bytes32 => GeneRecord) private records;
 
-/// @dev Throws if called by any account other than the contract owner.
     modifier onlyOwner() {
         if (msg.sender != owner) revert unauthorized(); 
         _;
     }
 
-/// @notice Deploys the GeneRegistry contract and sets the deployer as owner.
     constructor (){
         owner = msg.sender;
     }
 
-/// @notice Helper to validate character sequences.
-/// @dev Checks string bytes against case insensitive DNA bases (A, T, C, G) and wildcard (N).
-/// @param _sequence The DNA sequence string to evaluate.
-/// @return bool True if sequence contains valid characters only, false otherwise.
+// Function validates if a DNA sequence is valid
+// bases case-insensitive
+
     function isValidSequence (string memory _sequence) internal pure returns (bool){
         bytes memory sequenceBytes = bytes(_sequence);
 
@@ -103,11 +71,8 @@ contract GeneRegistry{
     }
 
 
-/// @notice Registers a new genomic sequence along with metadata.
-/// @dev Requires msg.value > = fee. Reverts on empty inputs, invalid bases, or duplicate sequences.
-/// @param _speciesName The biological name of the organism.
-/// @param _traitType The identified physiological trait.
- /// @param _sequence The DNA sequence string. 
+// Function to register a gene 
+// Fee registration of 0.001 eth
     function registerGene(
         string memory _speciesName, string memory _traitType, string memory _sequence) external payable {
         
