@@ -70,12 +70,13 @@ mapping(bytes32 => GeneRecord) private records;
     function getGeneBySequence(string memory _sequence) external view returns (GeneRecord memory) {
 
         if (bytes(_sequence).length == 0) revert emptyField("sequence");
-        
 
-        if (records[keccak256(bytes(_sequence))].exists) {
-            return records[keccak256(bytes(_sequence))];
+        bytes32 sequenceHash = keccak256(bytes(_sequence));
+
+        if (!records[sequenceHash].exists) {
+            revert geneNotFound(_sequence);
         }
-        revert geneNotFound(_sequence);
+        return records[sequenceHash];
     }
 
 
