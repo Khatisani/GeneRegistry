@@ -17,6 +17,7 @@ contract GeneRegistry{
     error emptyField(string field);
     error duplicateSequence(string sequence);
     error invalidSequence(string sequence);
+    error insufficientFee(uint256 required, uint256 provided);
 
 // Event for when a gene is registered, emit to log registration
     event registered(
@@ -43,9 +44,7 @@ mapping(bytes32 => GeneRecord) private records;
             revert duplicateSequence(_sequence);
         }
 
-        if (msg.value < fee){
-            revert ("Insufficient funds. Registration fee is 0.001 ETH");
-        }
+        if (msg.value < fee) revert insufficientFee(fee, msg.value);
         
 
     // NB: Check if the sequence is valid first
