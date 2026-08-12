@@ -26,7 +26,7 @@ contract GeneRegistryTest is Test {
 /// ================================================= isValidSequence Tests ===========================================
 
 /// Accepts sequence with lowercase letters
-    function test_IsValidSequence_Lowercase() public {
+    function test_isValidSequence_Lowercase() public {
         vm.prank(researcher2);
 
         registry.registerGene{value: REGISTRATION_FEE}(
@@ -37,7 +37,7 @@ contract GeneRegistryTest is Test {
     }
 
 /// Accepts sequence with uppercase letters
-    function test_IsValidSequence_Uppercase() public {
+    function test_isValidSequence_Uppercase() public {
         vm.prank(researcher2);
 
         registry.registerGene{value: REGISTRATION_FEE}(
@@ -48,7 +48,7 @@ contract GeneRegistryTest is Test {
     }
 
 /// Accepts sequence with valid mixed case letters
-    function test_IsValidSequence_AcceptsMixed() public {
+    function test_isValidSequence_AcceptsMixed() public {
         vm.prank(researcher);
 
         registry.registerGene{value: REGISTRATION_FEE}(
