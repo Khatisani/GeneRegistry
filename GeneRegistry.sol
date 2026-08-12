@@ -49,8 +49,25 @@ contract GeneRegistry{
         owner = msg.sender;
     }
 
+// Function validates if a DNA sequence is valid
+// bases case-insensitive
+
     function isValidSequence (string memory _sequence) internal pure returns (bool){
-        return true; 
+        bytes memory sequenceBytes = bytes(_sequence);
+
+        for (uint256 i = 0; i < sequenceBytes.length; i++) {
+            bytes1 char = sequenceBytes[i];
+
+            if (
+                !(char == 'A' || char == 'a' ||
+                char == 'T' || char == 't' ||
+                char == 'C' || char == 'c' ||
+                char == 'G' || char == 'g' ||
+                char == 'N' || char == 'n')
+
+                ) {return false;}
+            }
+            return true; 
     }
 
 
