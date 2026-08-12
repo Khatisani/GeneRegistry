@@ -34,20 +34,9 @@ The funding goes towards further research on the gene. Only owner of the gene is
 
 ## Repository Setup
 ```
-# 1. Clone the repository
-git clone [https://github.com/Khatisani/GeneRegistry.git](https://github.com/Khatisani/GeneRegistry.git)
+git clone https://github.com/Khatisani/GeneRegistry.git
 cd GeneRegistry
-
-# 2. Install Foundry
-curl -L [https://foundry.paradigm.xyz](https://foundry.paradigm.xyz) | bash
-source ~/.zshrc # or source ~/.bashrc / source ~/.zshenv
-foundryup
-
-# 3. Install project dependencies
-forge install foundry-rs/forge-std
-
-# 4. Generate path remappings for editor support
-forge remappings > remappings.txt
+./setup.sh
 ```
 
 ## Running Unit Tests
