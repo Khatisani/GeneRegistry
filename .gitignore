@@ -8,3 +8,6 @@ foundry.lock
 
 .states/
 .vscode/
+
+cache/
+out/
