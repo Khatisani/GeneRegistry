@@ -24,6 +24,8 @@ contract GeneRegistry{
     error invalidSequence(string sequence);
     error insufficientFee(uint256 required, uint256 provided);
     error geneNotFound(string sequence);
+    error withdrawFailed(); 
+    error unauthorized ();
 
 // Event for when a gene is registered, emit to log registration
     event registered(
@@ -39,7 +41,7 @@ contract GeneRegistry{
     mapping(bytes32 => GeneRecord) private records;
 
     modifier onlyOwner() {
-        if (msg.sender != owner) revert ("Only owner can perform this. ");
+        if (msg.sender != owner) revert unauthorized(); 
         _;
     }
 
@@ -116,7 +118,7 @@ contract GeneRegistry{
         if (balance == 0) revert insufficientFee(0, 0);
 
         (bool success, ) = owner.call{value: balance}("");
-        if (!success) revert ("Withdrawal failed.");
+        if (!success) revert withdrawFailed();
 
         emit feesWithdrawn(owner, balance);
     }

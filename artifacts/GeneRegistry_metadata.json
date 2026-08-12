@@ -6,6 +6,11 @@
 	"output": {
 		"abi": [
 			{
+				"inputs": [],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "string",
@@ -35,8 +40,64 @@
 						"type": "string"
 					}
 				],
+				"name": "geneNotFound",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "required",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "provided",
+						"type": "uint256"
+					}
+				],
+				"name": "insufficientFee",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "sequence",
+						"type": "string"
+					}
+				],
 				"name": "invalidSequence",
 				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "unauthorized",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "withdrawFailed",
+				"type": "error"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "feesWithdrawn",
+				"type": "event"
 			},
 			{
 				"anonymous": false,
@@ -148,6 +209,19 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "string",
@@ -168,6 +242,13 @@
 				"name": "registerGene",
 				"outputs": [],
 				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "withdrawFees",
+				"outputs": [],
+				"stateMutability": "nonpayable",
 				"type": "function"
 			}
 		],
@@ -199,11 +280,11 @@
 	},
 	"sources": {
 		"GeneRegistry.sol": {
-			"keccak256": "0xa068e5b0442f3dbb3a30ec16fceda8fd4d84e6af30f53b77dd534bc8f4873576",
+			"keccak256": "0x06b1d2d6e93b455f923f7011114fa4a6997926d5d3064612167e25b54fb1712d",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://2b0fb1b932f338d185606f63921d02d9b788f0a56972b44e3f42758e7c333db2",
-				"dweb:/ipfs/QmVzXjwKF1srm6czpmzhqafCp3kZ7bF6vypEuWZSWCsL1U"
+				"bzz-raw://b9383aacccc8fcc0843021be16a73b7f43f7a3307b59fb05035d45b389782976",
+				"dweb:/ipfs/QmTypzjE2ekFYJGDGXA88KPK9EY391MV73NTzRdrtvPaN5"
 			]
 		}
 	},
