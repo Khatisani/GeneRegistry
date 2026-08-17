@@ -160,7 +160,12 @@ contract GeneRegistry{
     }
 
 
-// Function to retrieve a gene based on its sequence
+/// @notice Retrieves a gene record using its raw DNA sequence.
+/// @dev Hashes the input string using keccak256 to look up the stored record.
+/// @param _sequence The DNA sequence string of the gene to look up.
+/// @return GeneRecord The full record associated with the given sequence.
+/// @custom:throws emptyField If `_sequence` is an empty string.
+/// @custom:throws geneNotFound If no record exists for the provided sequence hash.
     function getGeneBySequence(string memory _sequence) external view returns (GeneRecord memory) {
 
         if (bytes(_sequence).length == 0) revert emptyField("sequence");
