@@ -255,5 +255,42 @@ contract GeneRegistryTest is Test {
         vm.stopPrank();
     }
     
-/// ================================================= getGeneBySequence Tests ========================================
+/// ================================================= getGeneBySequence Tests =====================================================
+
+/// Succcessful retrieval of registered gene
+    function test_GetGeneBySequence_Success() public {
+        string memory species = "Sorghum bicolor";
+        string memory trait = "Drought Resistance";
+        string memory sequence = "ATCGATCGAT";
+
+        vm.prank(researcher);
+        registry.registerGene{value: REGISTRATION_FEE}(species, trait, sequence);
+
+        GeneRegistry.GeneRecord memory record = registry.getGeneBySequence(sequence);
+
+        assertTrue(record.exists);
+        assertEq(record.speciesName, species);
+        assertEq(record.traitType, trait);
+        assertEq(record.sequence, sequence);
+        assertEq(record.researcher, researcher);
+    }
+
+/// Reverts when gene is not registered
+    function test_RevertWhen_UnregisteredGene() public {
+        string memory unregisteredSeq = "CGATCGATCG";
+
+        vm.expectRevert(
+            abi.encodeWithSelector(GeneRegistry.geneNotFound.selector, unregisteredSeq)
+        );
+        registry.getGeneBySequence(unregisteredSeq);
+    }
+
+/// Reverts when sequence is empty
+    function test_getGeneBySequenceRevertWhen_SequenceIsEmpty() public {
+        vm.expectRevert(
+            abi.encodeWithSelector(GeneRegistry.emptyField.selector, "sequence")
+        );
+        registry.getGeneBySequence("");
+    }
+/// ====================================================== isRegistered Tests ======================================================
 }
