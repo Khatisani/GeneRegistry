@@ -179,7 +179,11 @@ contract GeneRegistry{
     }
 
 
-// Function to check if a sequence string is already registered
+/// @notice Checks whether a given DNA sequence is already registered in the registry.
+/// @dev Hashes the sequence using keccak256 to verify the existence flag in the records mapping.
+/// @param _sequence The DNA sequence string to check.
+/// @return bool True if the sequence is registered, false otherwise.
+/// @custom:throws emptyField If `_sequence` is an empty string.
     function isRegistered (string memory _sequence) external view returns (bool){
         if (bytes(_sequence).length == 0) revert emptyField("sequence");
 
