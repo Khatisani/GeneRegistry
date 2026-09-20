@@ -323,6 +323,58 @@ contract GeneRegistryTest is Test {
         registry.isRegistered("");
     }
 
+/// ====================================================== Withdraw Fees ======================================================
+    event feesWithdrawn(address indexed owner, uint256 amount);
+
+/// Owner can successfully withdraw accumulated registration fees
+    function test_WithdrawFees_Success() public {
+        vm.prank(researcher);
+        registry.registerGene{value: REGISTRATION_FEE}(
+            "Sorghum bicolor",
+            "Drought Resistance",
+            "ATCGATCGAT"
+        );
+
+        uint256 contractBalanceBefore = address(registry).balance;
+        uint256 ownerBalanceBefore = address(this).balance;
+
+        assertEq(contractBalanceBefore, REGISTRATION_FEE);
+
+        vm.expectEmit(true, false, false, true);
+        emit feesWithdrawn(owner, contractBalanceBefore);
+
+        registry.withdrawFees();
+
+        assertEq(address(registry).balance, 0);
+        assertEq(address(this).balance, ownerBalanceBefore + REGISTRATION_FEE);
+    }
+
+///nOnly owners cannot call withdrawFees
+    function test_RevertWhen_NonOwnerCallsWithdrawFees() public {
+        vm.prank(researcher2);
+        registry.registerGene{value: REGISTRATION_FEE}(
+            "Sorghum bicolor",
+            "Drought Resistance",
+            "ATCGATCGAT"
+        );
+
+        vm.prank(researcher2);
+        vm.expectRevert(GeneRegistry.unauthorized.selector);
+        registry.withdrawFees();
+    }
+
+/// Reverts when attempting to withdraw with zero balance in the contract
+    function test_RevertWhen_WithdrawFeesWithZeroBalance() public {
+        assertEq(address(registry).balance, 0);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(GeneRegistry.insufficientFee.selector, 0, 0)
+        );
+        registry.withdrawFees();
+    }
+
+    receive() external payable {}
+
 
 
 }
