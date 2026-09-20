@@ -192,7 +192,11 @@ contract GeneRegistry{
         return records[sequenceHash].exists;
     }
 
-// Function to withdraw the accumulated fees to contract owner
+/// @notice Transfers the total accumulated registration fees to the contract owner.
+/// @dev Restricted to the owner via `onlyOwner`. Emits a {feesWithdrawn} event upon transfer.
+/// @custom:throws unauthorized If called by any account other than `owner`.
+/// @custom:throws insufficientFee If the contract has a zero balance (`balance == 0`).
+/// @custom:throws withdrawFailed If the low-level ether transfer fails.
     function withdrawFees() external onlyOwner {
         uint256 balance = address(this).balance;
 
