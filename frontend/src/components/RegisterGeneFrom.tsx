@@ -244,16 +244,23 @@ export const RegisterGeneForm = () => {
             <button
                 type="button"
                 disabled={isConnecting}
-                onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                connectWallet();
+                onClick={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("Connect button clicked");
+                    console.log("window.ethereum exists?", typeof window !== "undefined" && !!(window as any).ethereum);
+                    try {
+                    await connectWallet();
+                    console.log("connectWallet finished successfully");
+                    } catch (err) {
+                    console.error("connectWallet caught error in component:", err);
+                    }
                 }}
                 className="w-full rounded-xl border border-pink-600/40 bg-pink-500 hover:bg-pink-400 disabled:opacity-50 text-zinc-950 py-2.5 text-xs font-bold tracking-wide transition-all shadow-[0_0_12px_rgba(244,114,182,0.25)] flex items-center justify-center gap-2 cursor-pointer"
-            >
+                >
                 <Wallet className="h-4 w-4" />
                 <span>{isConnecting ? "Connecting to Wallet..." : "Connect Wallet to Register"}</span>
-            </button>
+                </button>
             ) : (
             <button
                 type="submit"
