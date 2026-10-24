@@ -40,7 +40,7 @@ export const RegisterGeneForm = () => {
     computeHash();
   }, [sequence]);
 
-  // Real-time sequence validation and normalization
+
   const handleSequenceChange = (val: string) => {
     const upper = val.toUpperCase().replace(/\s+/g, "");
     setSequence(upper);
@@ -120,7 +120,7 @@ export const RegisterGeneForm = () => {
 
   return (
     <div className="rounded-2xl border border-pink-950/70 bg-gradient-to-b from-zinc-900/60 to-zinc-900/30 p-6 backdrop-blur-sm shadow-xl shadow-pink-950/10 space-y-6">
-      {/* Header */}
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-pink-400">
           <PlusCircle className="h-5 w-5" />
@@ -214,7 +214,6 @@ export const RegisterGeneForm = () => {
           )}
         </div>
 
-        {/* Fee & Hash Indicator */}
         <div className="rounded-xl border border-pink-950/50 bg-pink-950/20 p-3.5 space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-zinc-400">Required Registration Fee</span>
