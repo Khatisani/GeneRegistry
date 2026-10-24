@@ -3,7 +3,6 @@ pragma solidity ^0.8.20;
 
 /// @title GeneRegistry
 /// @notice A decentralized, tamper proof registry for storing plant and genomic DNA sequences.
-/// @dev Implements....
 contract GeneRegistry{
 
 /// @notice Data structure representing a registered gene record.
@@ -49,6 +48,12 @@ contract GeneRegistry{
 /// @notice Reverted when an address attempts to call an admin function.
     error unauthorized ();
 
+/// @notice Custom errors for crowdfunding actions.
+    error zeroDonation();
+    error onlyResearcher();
+    error noFundsAvailable();
+    error transferFailed();
+
 /// @notice Emitted when a new DNA sequence is successfully registered.
 /// @param sequence The DNA sequence.
 /// @param reseacher The address of the researcher submitting the sequence.
@@ -66,8 +71,23 @@ contract GeneRegistry{
 /// @param amount The total balance withdrawn in wei.
     event feesWithdrawn(address indexed owner, uint256 amount);
 
+/// @notice Emitted when a researcher's registered gene receives funding.
+    /// @param sequence The DNA sequence funded.
+    /// @param donor The address that contributed funds.
+    /// @param amount The value contributed in wei.
+    event geneFunded(string sequence, address indexed donor, uint256 amount);
+
+    /// @notice Emitted when a researcher withdraws accumulated research funds for their gene.
+    /// @param sequence The DNA sequence whose funds were withdrawn.
+    /// @param researcher The address that received the withdrawn funds.
+    /// @param amount The value withdrawn in wei.
+    event fundingWithdrawn(string sequence, address indexed researcher, uint256 amount);
+
 /// @dev Internal lookup mapping connecting keccak256 sequence hashes to GeneRecord structs.
     mapping(bytes32 => GeneRecord) private records;
+
+/// @dev Tracks total accumulated research funding per sequence hash.
+    mapping(bytes32 => uint256) public geneFunding;
 
 /// @dev Throws if called by any account other than the contract owner.
     modifier onlyOwner() {
@@ -206,6 +226,57 @@ contract GeneRegistry{
         if (!success) revert withdrawFailed();
 
         emit feesWithdrawn(owner, balance);
+    }
+
+    /// @notice Donates ETH to support research on a specific registered gene sequence.
+    /// @dev Reverts if the sequence is empty, unregistered, or if no ETH is sent.
+    /// @param _sequence The DNA sequence string of the gene to fund.
+    function fundGene(string memory _sequence) external payable {
+        if (bytes(_sequence).length == 0) revert emptyField("sequence");
+        if (msg.value == 0) revert zeroDonation();
+
+        string memory normalizedSequence = toUppercase(_sequence);
+        bytes32 sequenceHash = keccak256(bytes(normalizedSequence));
+
+        if (!records[sequenceHash].exists) {
+            revert geneNotFound(normalizedSequence);
+        }
+
+        geneFunding[sequenceHash] += msg.value;
+
+        emit geneFunded(normalizedSequence, msg.sender, msg.value);
+    }
+
+    /// @notice Allows the researcher who registered a gene to withdraw its accumulated funding.
+    /// @dev Implements checks-effects-interactions to guard against reentrancy.
+    /// @param _sequence The DNA sequence string whose funds are being withdrawn.
+    function withdrawGeneFunds(string memory _sequence) external {
+        if (bytes(_sequence).length == 0) revert emptyField("sequence");
+
+        string memory normalizedSequence = toUppercase(_sequence);
+        bytes32 sequenceHash = keccak256(bytes(normalizedSequence));
+
+        GeneRecord memory record = records[sequenceHash];
+
+        if (!record.exists) {
+            revert geneNotFound(normalizedSequence);
+        }
+
+        if (msg.sender != record.researcher) {
+            revert onlyResearcher();
+        }
+
+        uint256 availableBalance = geneFunding[sequenceHash];
+        if (availableBalance == 0) {
+            revert noFundsAvailable();
+        }
+
+        geneFunding[sequenceHash] = 0;
+
+        (bool success, ) = record.researcher.call{value: availableBalance}("");
+        if (!success) revert transferFailed();
+
+        emit fundingWithdrawn(normalizedSequence, record.researcher, availableBalance);
     }
 } 
 
