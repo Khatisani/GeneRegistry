@@ -22,10 +22,11 @@ interface FormErrors {
   sequence?: string;
 }
 
+
 type TxStatus = "idle" | "awaiting_signature" | "pending" | "confirmed" | "error";
 
 export const RegisterGeneForm = () => {
-  const { account, signer, currentNetwork, refreshBalance, connectWallet } = useWeb3();
+  const { account, signer, currentNetwork, refreshBalance, connectWallet, isConnecting } = useWeb3();
 
   const [speciesName, setSpeciesName] = useState("");
   const [traitType, setTraitType] = useState("");
@@ -240,20 +241,26 @@ export const RegisterGeneForm = () => {
 
 
         {!account ? (
-          <button
-            type="button"
-            onClick={connectWallet}
-            className="w-full rounded-xl border border-pink-600/40 bg-pink-500 hover:bg-pink-400 text-zinc-950 py-2.5 text-xs font-bold tracking-wide transition-all shadow-[0_0_12px_rgba(244,114,182,0.25)] flex items-center justify-center gap-2"
-          >
-            <Wallet className="h-4 w-4" />
-            <span>Connect Wallet to Register</span>
-          </button>
-        ) : (
-          <button
-            type="submit"
-            disabled={!isFormValid || status === "awaiting_signature" || status === "pending"}
-            className="w-full rounded-xl border border-pink-600/40 bg-pink-500 hover:bg-pink-400 disabled:bg-zinc-800 disabled:border-zinc-700 disabled:text-zinc-500 disabled:cursor-not-allowed text-zinc-950 py-2.5 text-xs font-bold tracking-wide transition-all shadow-[0_0_12px_rgba(244,114,182,0.25)] flex items-center justify-center gap-2"
-          >
+            <button
+                type="button"
+                disabled={isConnecting}
+                onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                connectWallet();
+                }}
+                className="w-full rounded-xl border border-pink-600/40 bg-pink-500 hover:bg-pink-400 disabled:opacity-50 text-zinc-950 py-2.5 text-xs font-bold tracking-wide transition-all shadow-[0_0_12px_rgba(244,114,182,0.25)] flex items-center justify-center gap-2 cursor-pointer"
+            >
+                <Wallet className="h-4 w-4" />
+                <span>{isConnecting ? "Connecting to Wallet..." : "Connect Wallet to Register"}</span>
+            </button>
+            ) : (
+            <button
+                type="submit"
+                disabled={!isFormValid || status === "awaiting_signature" || status === "pending"}
+                className="w-full rounded-xl border border-pink-600/40 bg-pink-500 hover:bg-pink-400 disabled:bg-zinc-800 disabled:border-zinc-700 disabled:text-zinc-500 disabled:cursor-not-allowed text-zinc-950 py-2.5 text-xs font-bold tracking-wide transition-all shadow-[0_0_12px_rgba(244,114,182,0.25)] flex items-center justify-center gap-2"
+            >
+
             {status === "awaiting_signature" && (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />

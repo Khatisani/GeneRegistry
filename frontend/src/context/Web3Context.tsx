@@ -114,43 +114,53 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
   };
 
   const connectWallet = async () => {
-    if (typeof window === "undefined" || !(window as any).ethereum) {
-      alert("No Ethereum wallet found. Please install MetaMask or Rabby.");
-      return;
+    if (typeof window === "undefined") return;
+
+    const ethereum = (window as any).ethereum;
+    if (!ethereum) {
+        alert("No Ethereum browser wallet detected. Please install MetaMask or Rabby.");
+        return;
     }
 
     try {
-      setIsConnecting(true);
-      const browserProvider = new BrowserProvider((window as any).ethereum);
+        setIsConnecting(true);
 
-      await browserProvider.send("eth_requestAccounts", []);
+        const browserProvider = new BrowserProvider(ethereum);
 
-      const userSigner = await browserProvider.getSigner();
-      const userAddress = await userSigner.getAddress();
-      const network = await browserProvider.getNetwork();
-      const currentChainId = Number(network.chainId);
+        const accounts = await browserProvider.send("eth_requestAccounts", []);
+        if (!accounts || accounts.length === 0) {
+        throw new Error("No accounts found or permission was denied.");
+        }
 
-      setProvider(browserProvider);
-      setSigner(userSigner);
-      setAccount(userAddress);
-      setChainId(currentChainId);
+        const userSigner = await browserProvider.getSigner();
+        const userAddress = await userSigner.getAddress();
+        const network = await browserProvider.getNetwork();
+        const currentChainId = Number(network.chainId);
 
-      if (!SUPPORTED_NETWORKS[currentChainId]) {
+        setProvider(browserProvider);
+        setSigner(userSigner);
+        setAccount(userAddress);
+        setChainId(currentChainId);
+
+        if (!SUPPORTED_NETWORKS[currentChainId]) {
         await switchToNetwork(DEFAULT_CHAIN_ID);
-      } else {
+        } else {
         const rawBalance = await browserProvider.getBalance(userAddress);
         setBalance(parseFloat(formatEther(rawBalance)).toFixed(4));
-      }
+        }
     } catch (err: any) {
-      if (err.code === 4001) {
-        console.warn("User cancelled Ethereum wallet connection.");
-      } else {
-        console.error("Ethereum connection error:", err);
-      }
+        console.error("Wallet connection error:", err);
+        if (err.code === -32002) {
+        alert("A wallet connection request is already pending. Please open your MetaMask extension popup.");
+        } else if (err.code === 4001 || err.code === "ACTION_REJECTED") {
+        console.warn("User cancelled connection request.");
+        } else {
+        alert(`Connection failed: ${err.message || "Unknown error"}`);
+        }
     } finally {
-      setIsConnecting(false);
+        setIsConnecting(false);
     }
-  };
+    };
 
   useEffect(() => {
     if (typeof window === "undefined" || !(window as any).ethereum) return;
