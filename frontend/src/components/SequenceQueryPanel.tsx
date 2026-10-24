@@ -71,7 +71,7 @@ export const SequenceQueryPanel = () => {
     const cleanSeq = searchInput.trim().toUpperCase();
 
     if (!cleanSeq) {
-      setCharValidationError("Sequence cannot be empty (emptyField)");
+      setCharValidationError("Sequence cannot be empty");
       return;
     }
 
@@ -104,7 +104,6 @@ export const SequenceQueryPanel = () => {
           <Search className="h-5 w-5" />
           <h2 className="text-base font-semibold text-white">Query Genomic Sequence</h2>
         </div>
-        <span className="text-[11px] font-mono text-zinc-500">View: isRegistered & getGeneBySequence</span>
       </div>
 
 
@@ -189,12 +188,12 @@ export const SequenceQueryPanel = () => {
           <span className="text-xs font-medium text-zinc-400">Ledger Status</span>
           {queriedRecord && (
             <span className="inline-flex items-center gap-1.5 rounded-full border border-pink-800/60 bg-pink-950/40 px-2.5 py-0.5 text-xs font-medium text-pink-300">
-              <CheckCircle2 className="h-3.5 w-3.5 text-pink-400" /> isRegistered: true
+              <CheckCircle2 className="h-3.5 w-3.5 text-pink-400" /> Gene is Registered
             </span>
           )}
           {notFoundSequence && (
             <span className="inline-flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900/70 px-2.5 py-0.5 text-xs font-medium text-zinc-400">
-              <XCircle className="h-3.5 w-3.5 text-rose-400" /> geneNotFound
+              <XCircle className="h-3.5 w-3.5 text-rose-400" /> Gene Not Found
             </span>
           )}
           {!queriedRecord && !notFoundSequence && (
