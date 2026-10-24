@@ -1,8 +1,20 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { PlusCircle, AlertCircle, CheckCircle2, Code2, Copy, Check, Sparkles, Hash } from "lucide-react";
+import React, { useState } from "react";
+import { ethers, parseEther } from "ethers";
+import { useWeb3 } from "@/context/Web3Context";
+import { GENE_REGISTRY_ADDRESS, GENE_REGISTRY_ABI } from "@/config/contract";
+import { decodeContractError } from "@/utils/errorDecoder";
+import {
+  PlusCircle,
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  ExternalLink,
+  Sparkles,
+  Wallet,
+} from "lucide-react";
 
 interface FormErrors {
   speciesName?: string;
@@ -10,36 +22,20 @@ interface FormErrors {
   sequence?: string;
 }
 
+type TxStatus = "idle" | "awaiting_signature" | "pending" | "confirmed" | "error";
+
 export const RegisterGeneForm = () => {
+  const { account, signer, currentNetwork, refreshBalance, connectWallet } = useWeb3();
+
   const [speciesName, setSpeciesName] = useState("");
   const [traitType, setTraitType] = useState("");
   const [sequence, setSequence] = useState("");
-  const [sequenceHash, setSequenceHash] = useState<string>("");
   const [errors, setErrors] = useState<FormErrors>({});
-  const [copied, setCopied] = useState(false);
-  const [showPayload, setShowPayload] = useState(false);
 
 
-  useEffect(() => {
-    async function computeHash() {
-      if (!sequence.trim()) {
-        setSequenceHash("");
-        return;
-      }
-      try {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(sequence.toUpperCase());
-        const hashBuffer = await window.crypto.subtle.digest("SHA-256", data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = "0x" + hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-        setSequenceHash(hashHex);
-      } catch {
-        setSequenceHash("0x" + "0".repeat(64));
-      }
-    }
-    computeHash();
-  }, [sequence]);
-
+  const [status, setStatus] = useState<TxStatus>("idle");
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSequenceChange = (val: string) => {
     const upper = val.toUpperCase().replace(/\s+/g, "");
@@ -50,66 +46,88 @@ export const RegisterGeneForm = () => {
       return;
     }
 
-    const validDnaRegex = /^[ATCGN]+$/;
-    if (!validDnaRegex.test(upper)) {
+    if (!/^[ATCGN]+$/.test(upper)) {
       setErrors((prev) => ({
         ...prev,
-        sequence: "Invalid nucleotide. Only A, T, C, G, and N are permitted.",
+        sequence: "Invalid nucleotide. Only A, T, C, G, and N are allowed.",
       }));
     } else {
       setErrors((prev) => {
-        const updated = { ...prev };
-        delete updated.sequence;
-        return updated;
+        const next = { ...prev };
+        delete next.sequence;
+        return next;
       });
     }
   };
 
   const validateAll = (): boolean => {
-    const errs: FormErrors = {};
-    if (!speciesName.trim()) errs.speciesName = "Species name is required (emptyField)";
-    if (!traitType.trim()) errs.traitType = "Trait type is required (emptyField)";
+    const nextErrors: FormErrors = {};
+    if (!speciesName.trim()) nextErrors.speciesName = "Species name is required";
+    if (!traitType.trim()) nextErrors.traitType = "Trait type is required";
     if (!sequence.trim()) {
-      errs.sequence = "Sequence is required (emptyField)";
+      nextErrors.sequence = "Sequence is required";
     } else if (!/^[ATCGN]+$/.test(sequence)) {
-      errs.sequence = "Sequence contains invalid bases (invalidSequence)";
+      nextErrors.sequence = "Only A, T, C, G, and N allowed";
     }
 
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
   };
 
-  const handlePreviewSubmit = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateAll()) {
-      setShowPayload(true);
+    if (!validateAll()) return;
+
+    if (!signer || !account) {
+      setErrorMessage("Please connect your wallet first.");
+      return;
     }
-  };
 
-  const payload = {
-    contract: "GeneRegistry",
-    function: "registerGene(string _speciesName, string _traitType, string _sequence)",
-    payableValue: "0.001 ETH (1000000000000000 wei)",
-    parameters: {
-      _speciesName: speciesName.trim(),
-      _traitType: traitType.trim(),
-      _sequence: sequence.toUpperCase(),
-    },
-    computedHash: sequenceHash,
-    expectedErrorChecks: ["emptyField", "invalidSequence", "insufficientFee", "duplicateSequence"],
-  };
+    try {
+      setErrorMessage(null);
+      setTxHash(null);
+      setStatus("awaiting_signature");
 
-  const handleCopyPayload = () => {
-    navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+      const contract = new ethers.Contract(GENE_REGISTRY_ADDRESS, GENE_REGISTRY_ABI, signer);
+
+
+      const tx = await contract.registerGene(
+        speciesName.trim(),
+        traitType.trim(),
+        sequence.toUpperCase(),
+        {
+          value: parseEther("0.001"),
+        }
+      );
+
+      setTxHash(tx.hash);
+      setStatus("pending");
+
+      const receipt = await tx.wait(1);
+
+      if (receipt.status === 1) {
+        setStatus("confirmed");
+        refreshBalance();
+        setSpeciesName("");
+        setTraitType("");
+        setSequence("");
+      } else {
+        throw new Error("Transaction execution reverted by EVM.");
+      }
+    } catch (err: any) {
+      console.error("registerGene transaction error:", err);
+      setStatus("error");
+      setErrorMessage(decodeContractError(err));
+    }
   };
 
   const handleLoadSample = () => {
     setSpeciesName("Oryza sativa");
     setTraitType("Submergence Tolerance");
     handleSequenceChange("ATCGATCGATCGTTTAAAGGCC");
-    setShowPayload(false);
+    setStatus("idle");
+    setErrorMessage(null);
+    setTxHash(null);
   };
 
   const isFormValid =
@@ -129,15 +147,16 @@ export const RegisterGeneForm = () => {
         <button
           type="button"
           onClick={handleLoadSample}
-          className="text-[11px] font-medium text-pink-300 hover:text-white bg-pink-950/40 hover:bg-pink-900/50 border border-pink-900/60 px-2.5 py-1 rounded-md transition-colors flex items-center gap-1"
+          disabled={status === "awaiting_signature" || status === "pending"}
+          className="text-[11px] font-medium text-pink-300 hover:text-white bg-pink-950/40 hover:bg-pink-900/50 border border-pink-900/60 px-2.5 py-1 rounded-md transition-colors flex items-center gap-1 disabled:opacity-50"
         >
           <Sparkles className="h-3 w-3 text-pink-400" />
           Fill Sample
         </button>
       </div>
 
+      <form onSubmit={handleRegister} className="space-y-4">
 
-      <form onSubmit={handlePreviewSubmit} className="space-y-4">
         <div>
           <div className="flex items-center justify-between mb-1">
             <label htmlFor="species-name" className="text-xs font-medium text-pink-200/80">
@@ -152,15 +171,14 @@ export const RegisterGeneForm = () => {
           <input
             id="species-name"
             type="text"
+            disabled={status === "awaiting_signature" || status === "pending"}
             value={speciesName}
             onChange={(e) => {
               setSpeciesName(e.target.value);
-              if (errors.speciesName) {
-                setErrors((prev) => ({ ...prev, speciesName: undefined }));
-              }
+              if (errors.speciesName) setErrors((prev) => ({ ...prev, speciesName: undefined }));
             }}
             placeholder="e.g. Oryza sativa"
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 px-3.5 py-2.5 text-sm text-pink-100 placeholder-zinc-600 focus:border-pink-500 focus:outline-none transition-all"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 px-3.5 py-2.5 text-sm text-pink-100 placeholder-zinc-600 focus:border-pink-500 focus:outline-none transition-all disabled:opacity-60"
           />
         </div>
 
@@ -178,17 +196,17 @@ export const RegisterGeneForm = () => {
           <input
             id="trait-type"
             type="text"
+            disabled={status === "awaiting_signature" || status === "pending"}
             value={traitType}
             onChange={(e) => {
               setTraitType(e.target.value);
-              if (errors.traitType) {
-                setErrors((prev) => ({ ...prev, traitType: undefined }));
-              }
+              if (errors.traitType) setErrors((prev) => ({ ...prev, traitType: undefined }));
             }}
             placeholder="e.g. Submergence Tolerance"
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 px-3.5 py-2.5 text-sm text-pink-100 placeholder-zinc-600 focus:border-pink-500 focus:outline-none transition-all"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 px-3.5 py-2.5 text-sm text-pink-100 placeholder-zinc-600 focus:border-pink-500 focus:outline-none transition-all disabled:opacity-60"
           />
         </div>
+
 
         <div>
           <div className="flex items-center justify-between mb-1">
@@ -200,10 +218,11 @@ export const RegisterGeneForm = () => {
           <textarea
             id="gene-sequence"
             rows={3}
+            disabled={status === "awaiting_signature" || status === "pending"}
             value={sequence}
             onChange={(e) => handleSequenceChange(e.target.value)}
             placeholder="e.g. ATCGATCGATCG..."
-            className={`w-full rounded-xl border bg-zinc-950/80 px-3.5 py-2.5 text-sm font-mono uppercase tracking-wider text-pink-100 placeholder-zinc-600 focus:outline-none resize-none transition-all ${
+            className={`w-full rounded-xl border bg-zinc-950/80 px-3.5 py-2.5 text-sm font-mono uppercase tracking-wider text-pink-100 placeholder-zinc-600 focus:outline-none resize-none transition-all disabled:opacity-60 ${
               errors.sequence ? "border-rose-500 focus:border-rose-400" : "border-zinc-800 focus:border-pink-500"
             }`}
           />
@@ -214,66 +233,96 @@ export const RegisterGeneForm = () => {
           )}
         </div>
 
-        <div className="rounded-xl border border-pink-950/50 bg-pink-950/20 p-3.5 space-y-2">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-zinc-400">Required Registration Fee</span>
-            <span className="font-mono font-bold text-pink-300">0.001 ETH</span>
-          </div>
-          {sequenceHash && (
-            <div className="flex items-center justify-between text-[11px] border-t border-pink-950/50 pt-2 text-zinc-400">
-              <span className="flex items-center gap-1">
-                <Hash className="h-3 w-3 text-pink-400" /> Sequence Hash
-              </span>
-              <span className="font-mono text-pink-200/80 max-w-[200px] truncate" title={sequenceHash}>
-                {sequenceHash.slice(0, 10)}...{sequenceHash.slice(-8)}
-              </span>
-            </div>
-          )}
+        <div className="rounded-xl border border-pink-950/50 bg-pink-950/20 p-3.5 flex items-center justify-between text-xs">
+          <span className="text-zinc-400">Required Registration Fee</span>
+          <span className="font-mono font-bold text-pink-300">0.001 ETH</span>
         </div>
 
-        <button
-          type="submit"
-          disabled={!isFormValid}
-          className="w-full rounded-xl border border-pink-600/40 bg-pink-500 hover:bg-pink-400 disabled:bg-zinc-800 disabled:border-zinc-700 disabled:text-zinc-500 disabled:cursor-not-allowed text-zinc-950 py-2.5 text-xs font-bold tracking-wide transition-all shadow-[0_0_12px_rgba(244,114,182,0.25)] flex items-center justify-center gap-2"
-        >
-          <Code2 className="h-4 w-4" />
-          <span>Generate Call Payload</span>
-        </button>
+
+        {!account ? (
+          <button
+            type="button"
+            onClick={connectWallet}
+            className="w-full rounded-xl border border-pink-600/40 bg-pink-500 hover:bg-pink-400 text-zinc-950 py-2.5 text-xs font-bold tracking-wide transition-all shadow-[0_0_12px_rgba(244,114,182,0.25)] flex items-center justify-center gap-2"
+          >
+            <Wallet className="h-4 w-4" />
+            <span>Connect Wallet to Register</span>
+          </button>
+        ) : (
+          <button
+            type="submit"
+            disabled={!isFormValid || status === "awaiting_signature" || status === "pending"}
+            className="w-full rounded-xl border border-pink-600/40 bg-pink-500 hover:bg-pink-400 disabled:bg-zinc-800 disabled:border-zinc-700 disabled:text-zinc-500 disabled:cursor-not-allowed text-zinc-950 py-2.5 text-xs font-bold tracking-wide transition-all shadow-[0_0_12px_rgba(244,114,182,0.25)] flex items-center justify-center gap-2"
+          >
+            {status === "awaiting_signature" && (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Confirming in Wallet...</span>
+              </>
+            )}
+            {status === "pending" && (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Submitting to Sepolia...</span>
+              </>
+            )}
+            {status !== "awaiting_signature" && status !== "pending" && (
+              <span>Register Gene (0.001 ETH)</span>
+            )}
+          </button>
+        )}
       </form>
 
-
-      {showPayload && isFormValid && (
-        <div className="rounded-xl border border-pink-900/60 bg-zinc-950/90 p-4 space-y-3 animate-in fade-in duration-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-xs font-medium text-pink-300">
-              <CheckCircle2 className="h-3.5 w-3.5 text-pink-400" />
-              <span>Simulated Calldata Ready</span>
-            </div>
-            <button
-              type="button"
-              onClick={handleCopyPayload}
-              className="flex items-center gap-1 text-[11px] text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded transition-colors"
-            >
-              {copied ? (
-                <>
-                  <Check className="h-3 w-3 text-emerald-400" />
-                  <span className="text-emerald-400">Copied</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="h-3 w-3" />
-                  <span>Copy JSON</span>
-                </>
-              )}
-            </button>
+      {status === "confirmed" && (
+        <div className="rounded-xl border border-emerald-900/60 bg-emerald-950/30 p-4 space-y-2 animate-in fade-in duration-200">
+          <div className="flex items-center gap-2 text-xs font-medium text-emerald-400">
+            <CheckCircle2 className="h-4 w-4" />
+            <span>Gene Successfully Registered on-chain!</span>
           </div>
+          {txHash && currentNetwork?.blockExplorerUrls?.[0] && (
+            <a
+              href={`${currentNetwork.blockExplorerUrls[0]}/tx/${txHash}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-[11px] text-zinc-400 hover:text-pink-300 font-mono transition-colors"
+            >
+              <span>View on Etherscan: {txHash.slice(0, 10)}...{txHash.slice(-8)}</span>
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
+        </div>
+      )}
 
-          <pre className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800/80 text-[11px] font-mono text-pink-200/90 overflow-x-auto leading-relaxed">
-            {JSON.stringify(payload, null, 2)}
-          </pre>
 
-          <p className="text-[10px] text-zinc-500">
-            No on-chain transaction was sent. This payload is ready to be bound to <code className="text-pink-400">useWriteContract</code> in the Web3 iteration.
+      {status === "pending" && txHash && (
+        <div className="rounded-xl border border-pink-900/60 bg-pink-950/20 p-4 space-y-2 animate-in fade-in duration-200">
+          <div className="flex items-center gap-2 text-xs font-medium text-pink-300">
+            <Loader2 className="h-4 w-4 animate-spin text-pink-400" />
+            <span>Waiting for block confirmation...</span>
+          </div>
+          {currentNetwork?.blockExplorerUrls?.[0] && (
+            <a
+              href={`${currentNetwork.blockExplorerUrls[0]}/tx/${txHash}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-[11px] text-zinc-400 hover:text-pink-300 font-mono transition-colors"
+            >
+              <span>Track Tx: {txHash.slice(0, 10)}...{txHash.slice(-8)}</span>
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
+        </div>
+      )}
+
+
+      {status === "error" && errorMessage && (
+        <div className="rounded-xl border border-rose-900/60 bg-rose-950/30 p-4 space-y-1 animate-in fade-in duration-200">
+          <div className="flex items-center gap-2 text-xs font-semibold text-rose-400">
+            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            <span>Registration Failed</span>
+          </div>
+          <p className="text-[11px] text-rose-300/90 pl-6 leading-relaxed">
+            {errorMessage}
           </p>
         </div>
       )}

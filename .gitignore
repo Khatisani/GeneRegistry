@@ -11,3 +11,5 @@ foundry.lock
 
 cache/
 out/
+
+.env.local
