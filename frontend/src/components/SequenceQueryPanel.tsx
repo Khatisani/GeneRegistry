@@ -259,7 +259,7 @@ export const SequenceQueryPanel = () => {
             <AlertCircle className="h-6 w-6 text-zinc-500 mx-auto" />
             <h3 className="text-sm font-semibold text-zinc-200">Sequence Not Found</h3>
             <p className="text-xs text-zinc-400 max-w-sm mx-auto font-mono">
-              keccak256 hash does not match any registered gene record.
+              Sequence does not match any registered gene record.
             </p>
             <p className="text-[11px] text-pink-400 pt-1">
               You can register this sequence using the registration form.
