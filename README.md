@@ -1,6 +1,12 @@
 # Gene Registry
 The African Indigenous Biodiversity & Crop Resilience Vault
 
+<p align="center">
+  <img src="assets/dashboard.png" alt="Alt text" width="500">
+</p>
+
+[![Live Demo](https://img.shields.io/badge/Demo-Live%20on%20Vercel-black?style=for-the-badge&logo=vercel)](https://gene-registry-seven.vercel.app/)
+
 Gene Registry leverages Ethereum smart contracts to create a tamper-proof timestamped 
 registry for indigenous plant DNA sequences, protecting researcher ownership and providing
  an immutable audit trail for genetic variants.
@@ -23,9 +29,7 @@ For now, input sequences are assumed to be standard fragments of 10 base pairs (
 * Sequence Lookup: Retrieve full metadata for registered genes using their sequence string.
 * Registration Fee Enforcement: A required fee of 0.001 ETH per registration to protect against spam.
 * Withrawal: Only owner of contract is permitted to withdraw the funds in the contract.
-
-### Next step:
-Crowdfunding: Allow funding to the wallet that registered the gene. 
+* Crowdfunding: Allow funding to the wallet that registered the gene. 
 The funding goes towards further research on the gene. Only owner of the gene is permitted to withdraw funds. 
 
 ## Development Environment: 
