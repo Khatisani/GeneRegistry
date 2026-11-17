@@ -11,5 +11,15 @@ foundry.lock
 
 cache/
 out/
+broadcast/
 
+.env
 .env.local
+frontend/.env.local
+
+node_modules/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+.DS_Store
