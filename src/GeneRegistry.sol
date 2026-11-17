@@ -207,10 +207,10 @@ contract GeneRegistry{
 /// @custom:throws emptyField If `_sequence` is an empty string.
     function isRegistered (string memory _sequence) external view returns (bool){
         if (bytes(_sequence).length == 0) revert emptyField("sequence");
-
-        bytes32 sequenceHash = keccak256(bytes(_sequence));
-
+        string memory normalizedSequence = toUppercase(_sequence);
+        bytes32 sequenceHash = keccak256(bytes(normalizedSequence));
         return records[sequenceHash].exists;
+
     }
 
 /// @notice Transfers the total accumulated registration fees to the contract owner.
