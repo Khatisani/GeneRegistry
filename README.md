@@ -36,11 +36,24 @@ The funding goes towards further research on the gene. Only owner of the gene is
 * This project was developed in Solidity `^0.8.20`
 * Testing framework used is Foundry
 
+## Tech Stack & Deployment
+
+- **Smart Contracts:** Solidity `^0.8.20` & Foundry (`forge-std`)
+- **Frontend:** Next.js (TypeScript), Tailwind CSS, Ethers.js v6
+- **Network:** Ethereum Sepolia Testnet
+
+
 ## Repository Setup
 ```
 git clone https://github.com/Khatisani/GeneRegistry.git
 cd GeneRegistry
 ./setup.sh
+
+# If forge-std is missing after setup:
+forge install foundry-rs/forge-std
+
+# Install frontend dependencies (required for lint, tsc, and dev server):
+cd frontend && npm install
 ```
 
 ## Running Unit Tests
