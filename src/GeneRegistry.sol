@@ -189,11 +189,12 @@ contract GeneRegistry{
     function getGeneBySequence(string memory _sequence) external view returns (GeneRecord memory) {
 
         if (bytes(_sequence).length == 0) revert emptyField("sequence");
+        string memory normalizedSequence = toUppercase(_sequence);
 
-        bytes32 sequenceHash = keccak256(bytes(_sequence));
+        bytes32 sequenceHash = keccak256(bytes(normalizedSequence));
 
         if (!records[sequenceHash].exists) {
-            revert geneNotFound(_sequence);
+            revert geneNotFound(normalizedSequence);
         }
         return records[sequenceHash];
     }
