@@ -220,13 +220,12 @@ contract GeneRegistry{
 /// @custom:throws withdrawFailed If the low-level ether transfer fails.
     function withdrawFees() external onlyOwner {
         uint256 balance = address(this).balance;
-
-        if (balance == 0) revert insufficientFee(0, 0);
-
-        (bool success, ) = owner.call{value: balance}("");
+        uint256 availableFees = balance > totalGeneFunding ? balance - totalGeneFunding : 0;
+        if (availableFees == 0) revert insufficientFee(0, 0);
+        (bool success, ) = owner.call{value: availableFees}("");
         if (!success) revert withdrawFailed();
+        emit feesWithdrawn(owner, availableFees);
 
-        emit feesWithdrawn(owner, balance);
     }
 
     /// @notice Donates ETH to support research on a specific registered gene sequence.
