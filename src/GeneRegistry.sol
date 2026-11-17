@@ -89,6 +89,9 @@ contract GeneRegistry{
 /// @dev Tracks total accumulated research funding per sequence hash.
     mapping(bytes32 => uint256) public geneFunding;
 
+/// @notice Total escrowed crowdfunding balance held across all sequences.
+    uint256 public totalGeneFunding;
+
 /// @dev Throws if called by any account other than the contract owner.
     modifier onlyOwner() {
         if (msg.sender != owner) revert unauthorized(); 
@@ -228,9 +231,9 @@ contract GeneRegistry{
 
     }
 
-    /// @notice Donates ETH to support research on a specific registered gene sequence.
-    /// @dev Reverts if the sequence is empty, unregistered, or if no ETH is sent.
-    /// @param _sequence The DNA sequence string of the gene to fund.
+/// @notice Donates ETH to support research on a specific registered gene sequence.
+/// @dev Reverts if the sequence is empty, unregistered, or if no ETH is sent.
+/// @param _sequence The DNA sequence string of the gene to fund.
     function fundGene(string memory _sequence) external payable {
         if (bytes(_sequence).length == 0) revert emptyField("sequence");
         if (msg.value == 0) revert zeroDonation();
@@ -243,13 +246,14 @@ contract GeneRegistry{
         }
 
         geneFunding[sequenceHash] += msg.value;
+        totalGeneFunding += msg.value;
 
         emit geneFunded(normalizedSequence, msg.sender, msg.value);
     }
 
-    /// @notice Allows the researcher who registered a gene to withdraw its accumulated funding.
-    /// @dev Implements checks-effects-interactions to guard against reentrancy.
-    /// @param _sequence The DNA sequence string whose funds are being withdrawn.
+/// @notice Allows the researcher who registered a gene to withdraw its accumulated funding.
+/// @dev Implements checks-effects-interactions to guard against reentrancy.
+/// @param _sequence The DNA sequence string whose funds are being withdrawn.
     function withdrawGeneFunds(string memory _sequence) external {
         if (bytes(_sequence).length == 0) revert emptyField("sequence");
 
@@ -272,6 +276,7 @@ contract GeneRegistry{
         }
 
         geneFunding[sequenceHash] = 0;
+        totalGeneFunding -= availableBalance;
 
         (bool success, ) = record.researcher.call{value: availableBalance}("");
         if (!success) revert transferFailed();

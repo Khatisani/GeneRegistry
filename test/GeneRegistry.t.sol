@@ -292,6 +292,29 @@ contract GeneRegistryTest is Test {
         );
         registry.getGeneBySequence("");
     }
+
+/// resolves records regardless of input casing
+    function test_GetGeneBySequence_CaseInsensitive() public {
+        vm.prank(researcher);
+        registry.registerGene{value: REGISTRATION_FEE}(
+            "Sorghum bicolor",
+            "Drought Resistance",
+            "ATCGATCG"
+        );
+
+        GeneRegistry.GeneRecord memory lowerRecord = registry.getGeneBySequence("atcgatcg");
+        GeneRegistry.GeneRecord memory mixedRecord = registry.getGeneBySequence("aTcGaTcG");
+
+        assertTrue(lowerRecord.exists);
+        assertEq(lowerRecord.sequence, "ATCGATCG");
+        assertEq(lowerRecord.speciesName, "Sorghum bicolor");
+        assertEq(lowerRecord.traitType, "Drought Resistance");
+        assertEq(lowerRecord.researcher, researcher);
+
+        assertEq(mixedRecord.sequence, "ATCGATCG");
+        assertEq(mixedRecord.researcher, researcher);
+    }
+
 /// ====================================================== isRegistered Tests ======================================================
     
 /// Registers a sequence and verifies that isRegistered returnd true
@@ -321,6 +344,20 @@ contract GeneRegistryTest is Test {
             abi.encodeWithSelector(GeneRegistry.emptyField.selector, "sequence")
         );
         registry.isRegistered("");
+    }
+
+/// handles lowercase and mixed-case inputs identically to uppercase
+    function test_IsRegistered_CaseInsensitive() public {
+        vm.prank(researcher);
+        registry.registerGene{value: REGISTRATION_FEE}(
+            "Sorghum bicolor",
+            "Drought Resistance",
+            "ATCGATCG"
+        );
+
+        assertTrue(registry.isRegistered("atcgatcg"));
+        assertTrue(registry.isRegistered("AtCgAtCg"));
+        assertTrue(registry.isRegistered("ATCGATCG"));
     }
 
 /// ====================================================== Withdraw Fees ======================================================
@@ -376,5 +413,58 @@ contract GeneRegistryTest is Test {
     receive() external payable {}
 
 
+/// only transfers protocol registration fees, leaving crowdfunded grants intact
+    function test_WithdrawFees_DoesNotDrainGeneFunding() public {
+        string memory sequence = "ATCGATCG";
+        uint256 donationAmount = 1 ether;
 
+        vm.prank(researcher);
+        registry.registerGene{value: REGISTRATION_FEE}(
+            "Sorghum bicolor",
+            "Drought Resistance",
+            sequence
+        );
+
+        vm.prank(researcher2);
+        registry.fundGene{value: donationAmount}(sequence);
+
+        assertEq(address(registry).balance, REGISTRATION_FEE + donationAmount);
+        assertEq(registry.totalGeneFunding(), donationAmount);
+
+        uint256 ownerBalanceBefore = owner.balance;
+
+
+        registry.withdrawFees();
+
+        assertEq(owner.balance, ownerBalanceBefore + REGISTRATION_FEE);
+        assertEq(address(registry).balance, donationAmount);
+        assertEq(registry.totalGeneFunding(), donationAmount);
+    }
+
+/// decrements totalGeneFunding and keeps accounting balanced after payout
+    function test_WithdrawGeneFunds_DecrementsTotalGeneFunding() public {
+        string memory sequence = "ATCGATCG";
+        uint256 donationAmount = 1.5 ether;
+
+        vm.prank(researcher);
+        registry.registerGene{value: REGISTRATION_FEE}(
+            "Sorghum bicolor",
+            "Drought Resistance",
+            sequence
+        );
+
+        vm.prank(researcher2);
+        registry.fundGene{value: donationAmount}(sequence);
+
+        assertEq(registry.totalGeneFunding(), donationAmount);
+
+        uint256 researcherBalanceBefore = researcher.balance;
+
+        vm.prank(researcher);
+        registry.withdrawGeneFunds(sequence);
+
+        assertEq(researcher.balance, researcherBalanceBefore + donationAmount);
+        assertEq(registry.totalGeneFunding(), 0);
+        assertEq(address(registry).balance, REGISTRATION_FEE);
+    }
 }
